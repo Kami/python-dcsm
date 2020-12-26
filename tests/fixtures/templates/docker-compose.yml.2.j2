@@ -1,0 +1,22 @@
+version: "2.1"
+
+services:
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - SECRET1={{secrets.KEY_ONE}}
+      - SECRET2={{secrets.KEY_TWO}}
+      - SECRET3={{secrets.KEY_THREE}}
+      - SECRET4={{secrets.INVALID}}
+    volumes:
+      - /opt/wireguard-server/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped

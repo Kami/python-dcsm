@@ -1,0 +1,9 @@
+docker-compose.yml
+docker-compose.yaml
+*.key
+*.pem
+secrets.yaml*
+build/
+dist/
+*.egg-info*
+.coverage
