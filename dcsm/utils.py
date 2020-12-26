@@ -16,8 +16,9 @@
 import os
 import tempfile
 import shutil
+import hashlib
 
-__all__ = ["write_to_file"]
+__all__ = ["write_to_file", "get_secrets_lock_file_path", "get_template_file_lock_path"]
 
 
 def write_to_file(file_path: str, permissions: int, content: bytes) -> None:
@@ -38,3 +39,19 @@ def write_to_file(file_path: str, permissions: int, content: bytes) -> None:
             os.unlink(tmp_path)
 
     os.chmod(file_path, permissions)
+
+
+def get_secrets_lock_file_path(secrets_path: str) -> str:
+    secrets_path = os.path.abspath(os.path.expanduser(secrets_path))
+    path_hash = hashlib.md5(secrets_path.encode("utf-8")).hexdigest()
+    lock_path = "/tmp/compose-secrets-%s.lock" % (path_hash)
+
+    return lock_path
+
+
+def get_template_file_lock_path(template_path: str) -> str:
+    template_path = os.path.abspath(os.path.expanduser(template_path))
+    path_hash = hashlib.md5(template_path.encode("utf-8")).hexdigest()
+    lock_path = "/tmp/compose-template-%s.lock" % (path_hash)
+
+    return lock_path

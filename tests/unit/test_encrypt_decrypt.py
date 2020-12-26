@@ -15,6 +15,7 @@
 
 import os
 import unittest
+import base64
 
 from dcsm.encryption import encrypt_secret
 from dcsm.decryption import decrypt_secret
@@ -39,7 +40,9 @@ class EncryptDecryptTestCase(unittest.TestCase):
         plaintext = "test hello world 1"
 
         ciphertext = encrypt_secret(key_path=PUBLIC_KEY_1_PATH, value=plaintext)
+        b64decoded_ciphertext = base64.b64decode(ciphertext)
         self.assertTrue(ciphertext != plaintext)
+        self.assertTrue(b64decoded_ciphertext != plaintext)
 
         # Valid key should work
         decrypted_plaintext = decrypt_secret(key_path=PRIVATE_KEY_1_PATH, secret=ciphertext)
@@ -55,7 +58,9 @@ class EncryptDecryptTestCase(unittest.TestCase):
         plaintext = "test hello world 2"
 
         ciphertext = encrypt_secret(key_path=PUBLIC_KEY_1_WITH_PASSWORD_PATH, value=plaintext)
+        b64decoded_ciphertext = base64.b64decode(ciphertext)
         self.assertTrue(ciphertext != plaintext)
+        self.assertTrue(b64decoded_ciphertext != plaintext)
 
         # Valid key should work
         decrypted_plaintext = decrypt_secret(

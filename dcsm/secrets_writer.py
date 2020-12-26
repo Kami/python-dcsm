@@ -16,10 +16,10 @@
 import os
 import time
 import getpass
-import hashlib
 import socket
 import shutil
 import tempfile
+import datetime
 
 import yaml
 
@@ -28,6 +28,7 @@ from filelock import FileLock
 from dcsm.encryption import encrypt_secret
 from dcsm.decryption import decrypt_secret
 from dcsm.utils import write_to_file
+from dcsm.utils import get_secrets_lock_file_path
 
 __all__ = ["encrypt_and_write_to_file", "remove_secret_from_file"]
 
@@ -50,8 +51,7 @@ def encrypt_and_write_to_file(key_path: str, secrets_path: str, key: str, value:
     """
     Encrypt secret value and write it to the provided YAML file with secrets.
     """
-    path_hash = hashlib.md5(secrets_path.encode("utf-8")).hexdigest()
-    lock_path = "/tmp/compose-secrets-%s.lock" % (path_hash)
+    lock_path = get_secrets_lock_file_path(secrets_path)
     lock = FileLock(lock_path, timeout=10)
 
     with lock:
@@ -61,11 +61,15 @@ def encrypt_and_write_to_file(key_path: str, secrets_path: str, key: str, value:
         # 2. Read existing file content
         content = get_file_content(secrets_path)
 
+        now_dt = datetime.datetime.utcnow()
         now_ts = int(time.time())
+        now_string = now_dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+
+        updated_at = "%s # %s" % (now_string, now_ts)
 
         # 3. Merge the new value in
         updated_by = "%s@%s" % (getpass.getuser(), socket.gethostname())
-        content["%s_updated" % (key)] = int(time.time())
+        content["%s_updated_at" % (key)] = updated_at
         content["%s_updated_by" % (key)] = updated_by
         content[key] = ciphertext
         content["updated_at"] = now_ts
@@ -81,8 +85,7 @@ def encrypt_and_write_to_file(key_path: str, secrets_path: str, key: str, value:
 
 
 def remove_secret_from_file(secrets_path: str, key: str) -> bool:
-    path_hash = hashlib.md5(secrets_path.encode("utf-8")).hexdigest()
-    lock_path = "/tmp/compose-secrets-%s.lock" % (path_hash)
+    lock_path = get_secrets_lock_file_path(secrets_path)
     lock = FileLock(lock_path, timeout=10)
 
     with lock:
@@ -93,7 +96,7 @@ def remove_secret_from_file(secrets_path: str, key: str) -> bool:
 
         keys_to_remove = [
             key,
-            "%s_updated" % (key),
+            "%s_updated_at" % (key),
             "%s_updated_by" % (key),
         ]
 

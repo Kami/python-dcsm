@@ -16,13 +16,13 @@
 import os
 import shutil
 import tempfile
-import hashlib
 
 from filelock import FileLock
 
 from jinja2 import Environment
 
 from dcsm.secrets_writer import decrypt_secret_from_file
+from dcsm.utils import get_template_file_lock_path
 
 __all__ = ["render_template_file"]
 
@@ -58,8 +58,7 @@ def render_template_file(
     Render the provided docker compose template file, and replace secrets with decrypted secrets
     from the provided secrets file.
     """
-    path_hash = hashlib.md5(destination_path.encode("utf-8")).hexdigest()
-    lock_path = "/tmp/compose-secrets-%s.lock" % (path_hash)
+    lock_path = get_template_file_lock_path(destination_path)
     lock = FileLock(lock_path, timeout=10)
 
     if template_path == destination_path:
