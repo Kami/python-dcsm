@@ -20,6 +20,7 @@ import tempfile
 from filelock import FileLock
 
 from jinja2 import Environment
+from jinja2 import StrictUndefined
 
 from dcsm.secrets_writer import decrypt_secret_from_file
 from dcsm.utils import get_template_file_lock_path
@@ -75,7 +76,7 @@ def render_template_file(
         )
         template_context = {"secrets": secrets_dict}
 
-        env = Environment()
+        env = Environment(undefined=StrictUndefined)
         template = env.from_string(template_content)
         rendered_template = template.render(**template_context)
 
