@@ -148,4 +148,10 @@ I take no responsibility and you have been warned.
 ## Limitations
 
 1. Currently no key rotation scheme is implemented and supported
-...
+2. Asymmetric crypto without any MAC scheme is used which means that anyone with access to the
+   public key and write access to secrets file can create / update secrets (aka there is no
+   guarantee for integrity and authenticity of the secrets data). For simplicity, this project
+   assumed secrets file is only writable by authorized uses. To be able to guarantee integrity and
+   authenticity we would either need to use multiple RSA keys (one for decryption on the server
+   side and X for users who are authorized to write secrets) or use symmetric crypto. This would
+   change the threat model and make code more complex.
