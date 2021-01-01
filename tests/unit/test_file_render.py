@@ -32,7 +32,7 @@ __all__ = ["FileRenderTestCase"]
 
 
 class FileRenderTestCase(unittest.TestCase):
-    def test_render_template_file_success(self):
+    def test_render_template_file_default_ensure_permissions_success(self):
         _, tmp_path = tempfile.mkstemp()
 
         destination_path = render_template_file(
@@ -47,6 +47,29 @@ class FileRenderTestCase(unittest.TestCase):
         self.assertTrue("- SECRET1=value 1" in rendered_template)
         self.assertTrue("- SECRET2=value 2" in rendered_template)
         self.assertTrue("- SECRET3=value 3" in rendered_template)
+
+        file_permissions = oct(os.stat(tmp_path).st_mode)[-3:]
+        self.assertEqual(file_permissions, "600")
+
+    def test_render_template_file_custom_ensure_permissions_success(self):
+        _, tmp_path = tempfile.mkstemp()
+
+        destination_path = render_template_file(
+            key_path=PRIVATE_KEY_1_PATH,
+            secrets_path=SECRETS_1_PATH,
+            template_path=TEMPLATE_1_PATH,
+            destination_path=tmp_path,
+            ensure_permissions="740",
+        )
+        self.assertEqual(destination_path, tmp_path)
+
+        rendered_template = self._get_file_content(tmp_path)
+        self.assertTrue("- SECRET1=value 1" in rendered_template)
+        self.assertTrue("- SECRET2=value 2" in rendered_template)
+        self.assertTrue("- SECRET3=value 3" in rendered_template)
+
+        file_permissions = oct(os.stat(tmp_path).st_mode)[-3:]
+        self.assertEqual(file_permissions, "740")
 
     def test_render_template_references_inexistent_key_failure(self):
         _, tmp_path = tempfile.mkstemp()

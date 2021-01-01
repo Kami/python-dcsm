@@ -53,6 +53,7 @@ def render_template_file(
     secrets_path: str,
     template_path: str,
     destination_path: str,
+    ensure_permissions: str = "600",
     key_password: str = None,
 ) -> str:
     """
@@ -84,7 +85,7 @@ def render_template_file(
         # For security reasons we first write it to a temporary file, chmod it and then move it to a
         # final location
         fd, tmp_path = tempfile.mkstemp()
-        os.chmod(tmp_path, 0o600)
+        os.chmod(tmp_path, int(ensure_permissions, 8))
 
         try:
             try:
@@ -97,7 +98,7 @@ def render_template_file(
             if os.path.isfile(tmp_path):
                 os.unlink(tmp_path)
 
-        os.chmod(destination_path, 0o600)
+        os.chmod(destination_path, int(ensure_permissions, 8))
 
     print("Rendered template saved to %s" % (destination_path))
     return destination_path

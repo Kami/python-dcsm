@@ -49,6 +49,13 @@ if __name__ == "__main__":
         help=("Path where the rendered docker compose file content should be saved"),
     )
     parser.add_argument(
+        "--ensure-permissions",
+        type=str,
+        default="600",
+        required=True,
+        help=("Which permissions should be used for a rendered file. Defaults to 600."),
+    )
+    parser.add_argument(
         "--password",
         type=str,
         default=None,
@@ -62,5 +69,6 @@ if __name__ == "__main__":
         secrets_path=args.secrets_path,
         template_path=args.template_path,
         destination_path=args.destination_path,
+        ensure_permissions=args.ensure_permissions,
         key_password=args.password,
     )
