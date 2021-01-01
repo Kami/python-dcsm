@@ -22,6 +22,7 @@ import yaml
 
 from dcsm.secrets_writer import encrypt_and_write_to_file
 from dcsm.secrets_writer import remove_secret_from_file
+from dcsm.secrets_writer import decrypt_secret_from_file
 from dcsm.decryption import decrypt_secret
 from dcsm.utils import get_template_file_lock_path
 
@@ -97,6 +98,17 @@ class SecretsWriterTestCase(unittest.TestCase):
         self.assertRaisesRegex(
             ValueError, expected_msg, remove_secret_from_file, secrets_path=tmp_path, key="invalid"
         )
+
+    def test_decrypt_secret_from_file_success(self):
+        decrypted_key = decrypt_secret_from_file(
+            key_path=PRIVATE_KEY_1_PATH, secrets_path=SECRETS_1_PATH, key="KEY_ONE"
+        )
+        self.assertEqual(decrypted_key, "value 1")
+
+        decrypted_key = decrypt_secret_from_file(
+            key_path=PRIVATE_KEY_1_PATH, secrets_path=SECRETS_1_PATH, key="KEY_THREE"
+        )
+        self.assertEqual(decrypted_key, "value 3")
 
     def _get_file_content(self, file_path: str) -> str:
         with open(file_path, "r") as fp:

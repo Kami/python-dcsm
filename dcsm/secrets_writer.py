@@ -120,6 +120,9 @@ def remove_secret_from_file(secrets_path: str, key: str) -> bool:
 def decrypt_secret_from_file(
     key_path: str, secrets_path: str, key: str, key_password: str = None
 ) -> str:
+    if not os.path.isfile(secrets_path):
+        raise ValueError("File %s doesn't exist" % (secrets_path))
+
     content = get_file_content(secrets_path)
 
     if key not in content:
