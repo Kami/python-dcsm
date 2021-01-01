@@ -52,7 +52,7 @@ if __name__ == "__main__":
         "--ensure-permissions",
         type=str,
         default="600",
-        required=True,
+        required=False,
         help=("Which permissions should be used for a rendered file. Defaults to 600."),
     )
     parser.add_argument(
