@@ -29,7 +29,7 @@ def encrypt_secret(key_path: str, value: str) -> str:
     """
 
     if not os.path.isfile(key_path):
-        raise ValueError("Key file %s doesn't exist")
+        raise ValueError("Key file %s doesn't exist" % (key_path))
 
     with open(key_path, "rb") as fp:
         serialized_public_key = fp.read()
