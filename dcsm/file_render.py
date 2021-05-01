@@ -48,6 +48,20 @@ class DecryptSecretsDict(object):
         )
 
 
+class DummySecretsDict(object):
+    """
+    Class which always returns a fixed value for every key.
+
+    Can be useful when templating files with dummy secrets for tests or similar.
+    """
+
+    def __init__(self, key_value: str) -> None:
+        self._key_value = key_value
+
+    def __getattr__(self, key):
+        return self._key_value
+
+
 def render_template_file(
     key_path: str,
     secrets_path: str,
@@ -55,6 +69,7 @@ def render_template_file(
     destination_path: str,
     ensure_permissions: str = "600",
     key_password: str = None,
+    dummy: bool = False,
 ) -> str:
     """
     Render the provided docker compose template file, and replace secrets with decrypted secrets
@@ -72,9 +87,13 @@ def render_template_file(
             template_content = fp.read().decode("utf-8")
 
         # 2. Render the template with secrets
-        secrets_dict = DecryptSecretsDict(
-            key_path=key_path, secrets_path=secrets_path, key_password=key_password
-        )
+        if dummy:
+            secrets_dict = DummySecretsDict(key_value="dummy")
+        else:
+            secrets_dict = DecryptSecretsDict(  # type: ignore
+                key_path=key_path, secrets_path=secrets_path, key_password=key_password
+            )
+
         template_context = {"secrets": secrets_dict}
 
         env = Environment(undefined=StrictUndefined)
