@@ -82,7 +82,7 @@ def render_template_file(
         raise ValueError("Template and destination paths cannot be the same")
 
     with lock:
-        # 1. Load compos template file
+        # 1. Load compose template file
         with open(template_path, "rb") as fp:
             template_content = fp.read().decode("utf-8")
 
