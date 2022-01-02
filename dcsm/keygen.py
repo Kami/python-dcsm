@@ -25,11 +25,16 @@ from dcsm.utils import write_to_file
 
 __all__ = ["generate_key_pair"]
 
+KEY_SIZE = 8192
+
 
 def generate_key_pair(path: str, password: str = None, overwrite: bool = False) -> Tuple[str, str]:
     """
     Generate a new public and private key pair and write result to a file.
     """
+    assert KEY_SIZE >= 4096
+    print("Generating 8192 bit key pair, this may take a while...")
+
     private_key_path = os.path.expanduser(os.path.join(path, "private_key.pem"))
     public_key_path = os.path.expanduser(os.path.join(path, "public_key.pem"))
 
@@ -44,7 +49,7 @@ def generate_key_pair(path: str, password: str = None, overwrite: bool = False) 
         )
 
     private_key = rsa.generate_private_key(
-        public_exponent=65537, key_size=4096, backend=default_backend()
+        public_exponent=65537, key_size=KEY_SIZE, backend=default_backend()
     )
     public_key = private_key.public_key()
 
