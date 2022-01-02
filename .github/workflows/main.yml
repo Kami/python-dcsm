@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - bigger_key_size_update_deps
   pull_request:
     branches:
       - master
