@@ -18,9 +18,12 @@ from typing import Optional
 import os
 import base64
 
+from typing import cast
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
 __all__ = ["decrypt_secret"]
 
@@ -45,6 +48,7 @@ def decrypt_secret(key_path: str, secret: str, password: str = None) -> str:
         password=password_bytes,
         backend=None,
     )
+    private_key = cast(RSAPrivateKey, private_key)
 
     b64decoded = base64.b64decode(secret)
 

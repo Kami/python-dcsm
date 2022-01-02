@@ -16,9 +16,12 @@
 import os
 import base64
 
+from typing import cast
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 
 __all__ = ["encrypt_secret"]
 
@@ -38,6 +41,7 @@ def encrypt_secret(key_path: str, value: str) -> str:
         serialized_public_key,
         backend=None,
     )
+    public_key = cast(RSAPublicKey, public_key)
 
     ciphertext = public_key.encrypt(
         value.encode("utf-8"),
