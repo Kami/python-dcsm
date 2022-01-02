@@ -155,3 +155,8 @@ I take no responsibility and you have been warned.
    authenticity we would either need to use multiple RSA keys (one for decryption on the server
    side and X for users who are authorized to write secrets) or use symmetric crypto. This would
    change the threat model and make code more complex.
+3. Maximum size of unecrypted secret is ~512 bytes (4096 bit RSA key).
+4. When writting rendered template files, to avoid race conditions, first a temporary file is
+   created in a safe manner, second permissions are ensured, third rendered values are written and
+   at the very end, file is moved to the final location. Having said that, you are still encouraged
+   to set a safe default umask for new files when using this script (e.g. ``umask 077``).
