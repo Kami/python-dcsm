@@ -1,4 +1,4 @@
-cryptography==3.3.2
+cryptography==36.0.1
 filelock==3.0.12
-pyyaml==5.4.1
-Jinja2==2.11.3
+pyyaml==6.0
+Jinja2==3.0.3
