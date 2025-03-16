@@ -1,5 +1,5 @@
-black==21.12b0
+black==25.1.0
 flake8==3.8.4
-mypy==0.930
+mypy==0.991
 types-filelock
 types-PyYAML

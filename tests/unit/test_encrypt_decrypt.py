@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import os
 import unittest
-import base64
 
-from dcsm.encryption import encrypt_secret
 from dcsm.decryption import decrypt_secret
+from dcsm.encryption import encrypt_secret
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.abspath(os.path.join(BASE_DIR, "../fixtures"))
@@ -49,7 +49,7 @@ class EncryptDecryptTestCase(unittest.TestCase):
         self.assertEqual(decrypted_plaintext, plaintext)
 
         # Invalid key should not work
-        expected_msg = "Encryption/decryption failed."
+        expected_msg = "Decryption failed"
         self.assertRaisesRegex(
             ValueError, expected_msg, decrypt_secret, key_path=PRIVATE_KEY_2_PATH, secret=ciphertext
         )
@@ -79,7 +79,7 @@ class EncryptDecryptTestCase(unittest.TestCase):
         )
 
         # Invalid password
-        expected_msg = "Bad decrypt. Incorrect password?"
+        expected_msg = "Could not deserialize key data. The data may be in an incorrect format.*"
         self.assertRaisesRegex(
             ValueError,
             expected_msg,
@@ -90,7 +90,7 @@ class EncryptDecryptTestCase(unittest.TestCase):
         )
 
         # Invalid key should not work
-        expected_msg = "Encryption/decryption failed."
+        expected_msg = "Decryption failed"
         self.assertRaisesRegex(
             ValueError, expected_msg, decrypt_secret, key_path=PRIVATE_KEY_2_PATH, secret=ciphertext
         )
