@@ -2,3 +2,4 @@ cryptography>=44.0.2
 filelock>=3.0.12,<4.0
 pyyaml>=6.0.2,<7.0
 Jinja2>=3.0.3,<4.0
+setuptools>=70.0.0 # required for Python 3.12
