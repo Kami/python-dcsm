@@ -16,11 +16,9 @@
 import os
 import sys
 
-from setuptools import setup
-from setuptools import find_packages
+from setuptools import find_packages, setup
 
-from dist_utils import fetch_requirements
-from dist_utils import get_version_string
+from dist_utils import fetch_requirements, get_version_string
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REQUIREMENTS_FILE = os.path.join(BASE_DIR, "requirements.txt")

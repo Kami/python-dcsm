@@ -20,10 +20,12 @@ import unittest
 
 import yaml
 
-from dcsm.secrets_writer import encrypt_and_write_to_file
-from dcsm.secrets_writer import remove_secret_from_file
-from dcsm.secrets_writer import decrypt_secret_from_file
 from dcsm.decryption import decrypt_secret
+from dcsm.secrets_writer import (
+    decrypt_secret_from_file,
+    encrypt_and_write_to_file,
+    remove_secret_from_file,
+)
 from dcsm.utils import get_template_file_lock_path
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

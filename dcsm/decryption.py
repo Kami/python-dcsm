@@ -13,25 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
-
-import os
 import base64
+import os
+from typing import Optional, cast
 
-from typing import cast
-
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 
 __all__ = ["decrypt_secret"]
 
 
-def decrypt_secret(key_path: str, secret: str, password: str = None) -> str:
+def decrypt_secret(key_path: str, secret: str, password: Optional[str] = None) -> str:
     """
     Decrypt provided RSA encrypted and base64 encoded secret value.
     """
+
     if password:
         password_bytes: Optional[bytes] = password.encode("utf-8")
     else:
@@ -59,4 +56,5 @@ def decrypt_secret(key_path: str, secret: str, password: str = None) -> str:
         ),
     )
     result = plaintext.decode("utf-8")
+
     return result

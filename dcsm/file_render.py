@@ -16,11 +16,10 @@
 import os
 import shutil
 import tempfile
+from typing import Optional
 
 from filelock import FileLock
-
-from jinja2 import Environment
-from jinja2 import StrictUndefined
+from jinja2 import Environment, StrictUndefined
 
 from dcsm.secrets_writer import decrypt_secret_from_file
 from dcsm.utils import get_template_file_lock_path
@@ -34,7 +33,9 @@ class DecryptSecretsDict(object):
     user-friendly error messages.
     """
 
-    def __init__(self, key_path: str, secrets_path: str, key_password: str = None) -> None:
+    def __init__(
+        self, key_path: str, secrets_path: str, key_password: Optional[str] = None
+    ) -> None:
         self._key_path = key_path
         self._secrets_path = secrets_path
         self._key_password = key_password
@@ -68,7 +69,7 @@ def render_template_file(
     template_path: str,
     destination_path: str,
     ensure_permissions: str = "600",
-    key_password: str = None,
+    key_password: Optional[str] = None,
     dummy: bool = False,
 ) -> str:
     """
@@ -87,6 +88,7 @@ def render_template_file(
             template_content = fp.read().decode("utf-8")
 
         # 2. Render the template with secrets
+
         if dummy:
             secrets_dict = DummySecretsDict(key_value="dummy")
         else:
@@ -120,4 +122,5 @@ def render_template_file(
         os.chmod(destination_path, int(ensure_permissions, 8))
 
     print("Rendered template saved to %s" % (destination_path))
+
     return destination_path

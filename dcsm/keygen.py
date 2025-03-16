@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Tuple
-
 import os
+from typing import Optional, Tuple
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from dcsm.utils import write_to_file
 
@@ -28,7 +27,9 @@ __all__ = ["generate_key_pair"]
 KEY_SIZE = 8192
 
 
-def generate_key_pair(path: str, password: str = None, overwrite: bool = False) -> Tuple[str, str]:
+def generate_key_pair(
+    path: str, password: Optional[str] = None, overwrite: bool = False
+) -> Tuple[str, str]:
     """
     Generate a new public and private key pair and write result to a file.
     """
@@ -75,4 +76,5 @@ def generate_key_pair(path: str, password: str = None, overwrite: bool = False) 
 
     print("Private key saved to %s" % (private_key_path))
     print("Public key saved to %s" % (public_key_path))
+
     return (private_key_path, public_key_path)

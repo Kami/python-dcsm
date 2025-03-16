@@ -4,7 +4,6 @@ import argparse
 
 from dcsm.keygen import generate_key_pair
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=("Generate a new RSA key pair"))
     parser.add_argument(

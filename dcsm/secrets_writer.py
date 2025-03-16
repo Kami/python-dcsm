@@ -13,22 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import time
-import getpass
-import socket
-import shutil
-import tempfile
 import datetime
+import getpass
+import os
+import shutil
+import socket
+import tempfile
+import time
+from typing import Optional
 
 import yaml
-
 from filelock import FileLock
 
-from dcsm.encryption import encrypt_secret
 from dcsm.decryption import decrypt_secret
-from dcsm.utils import write_to_file
-from dcsm.utils import get_secrets_lock_file_path
+from dcsm.encryption import encrypt_secret
+from dcsm.utils import get_secrets_lock_file_path, write_to_file
 
 __all__ = ["encrypt_and_write_to_file", "remove_secret_from_file"]
 
@@ -114,11 +113,12 @@ def remove_secret_from_file(secrets_path: str, key: str) -> bool:
             write_to_file(file_path=secrets_path, permissions=0o600, content=result.encode("utf-8"))
 
     print('Secret "%s" removed from file %s' % (key, secrets_path))
+
     return True
 
 
 def decrypt_secret_from_file(
-    key_path: str, secrets_path: str, key: str, key_password: str = None
+    key_path: str, secrets_path: str, key: str, key_password: Optional[str] = None
 ) -> str:
     if not os.path.isfile(secrets_path):
         raise ValueError("File %s doesn't exist" % (secrets_path))
@@ -131,6 +131,7 @@ def decrypt_secret_from_file(
         )
 
     plaintext = decrypt_secret(key_path=key_path, secret=content[key], password=key_password)
+
     return plaintext
 
 

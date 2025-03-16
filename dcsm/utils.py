@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import tempfile
-import shutil
 import hashlib
+import os
+import shutil
+import tempfile
 
 __all__ = ["write_to_file", "get_secrets_lock_file_path", "get_template_file_lock_path"]
 

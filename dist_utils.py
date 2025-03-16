@@ -22,7 +22,6 @@ from __future__ import absolute_import
 import os
 import re
 import sys
-
 from distutils.version import StrictVersion
 
 # NOTE: This script can't rely on any 3rd party dependency so we need to use this code here
