@@ -39,7 +39,7 @@ if __name__ == "__main__":
         "--batch-manifest",
         type=str,
         default=None,
-        help=("JSON file containing a list of {template_path, destination_path} objects"),
+        help=("JSON file containing a list of {template_path, destination_path, ensure_permissions?} objects"),
     )
     parser.add_argument(
         "--template-path",
@@ -81,7 +81,16 @@ if __name__ == "__main__":
     if args.batch_manifest:
         with open(args.batch_manifest, "r", encoding="utf-8") as fp:
             manifest = json.load(fp)
-        templates = [(item["template_path"], item["destination_path"]) for item in manifest]
+        templates = [
+            (
+                item["template_path"],
+                item["destination_path"],
+                item["ensure_permissions"],
+            )
+            if "ensure_permissions" in item
+            else (item["template_path"], item["destination_path"])
+            for item in manifest
+        ]
         render_template_files(
             key_path=args.key_path,
             secrets_path=args.secrets_path,

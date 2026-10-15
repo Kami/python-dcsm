@@ -16,7 +16,7 @@
 import os
 import shutil
 import tempfile
-from typing import Dict, Iterable, Optional, Sequence, Tuple
+from typing import Dict, Iterable, Optional, Sequence, Tuple, Union
 
 import yaml
 from cryptography.hazmat.primitives import serialization
@@ -115,20 +115,26 @@ def _render_one(
 def render_template_files(
     key_path: str,
     secrets_path: str,
-    templates: Iterable[Tuple[str, str]],
+    templates: Iterable[Union[Tuple[str, str], Tuple[str, str, str]]],
     ensure_permissions: str = "600",
     key_password: Optional[str] = None,
     dummy: bool = False,
 ) -> Sequence[str]:
-    """Render (template, destination) pairs sharing one lazy secret/key cache."""
+    """Render template/destination pairs sharing one lazy secret/key cache.
+
+    An optional third tuple item overrides ``ensure_permissions`` for that
+    destination, allowing a batch to preserve mixed output modes.
+    """
     secrets_dict = DummySecretsDict("dummy") if dummy else RenderSecrets(
         key_path=key_path, secrets_path=secrets_path, key_password=key_password
     )
     results = []
-    for template_path, destination_path in templates:
+    for item in templates:
+        template_path, destination_path = item[:2]
+        permissions = item[2] if len(item) == 3 else ensure_permissions
         results.append(
             _render_one(
-                template_path, destination_path, ensure_permissions, secrets_dict
+                template_path, destination_path, permissions, secrets_dict
             )
         )
     return results

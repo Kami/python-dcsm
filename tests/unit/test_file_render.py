@@ -154,6 +154,22 @@ class FileRenderTestCase(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "cannot be the same"):
                 render_template_files("", "", [(template, template)], dummy=True)
 
+    def test_batch_allows_per_destination_permissions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            template = os.path.join(tmp, "template.j2")
+            output_default = os.path.join(tmp, "default")
+            output_private_exec = os.path.join(tmp, "private-exec")
+            with open(template, "w") as fp:
+                fp.write("ok")
+            render_template_files(
+                "",
+                "",
+                [(template, output_default), (template, output_private_exec, "700")],
+                dummy=True,
+            )
+            self.assertEqual(oct(os.stat(output_default).st_mode)[-3:], "600")
+            self.assertEqual(oct(os.stat(output_private_exec).st_mode)[-3:], "700")
+
     def test_concurrent_writes_to_same_destination_are_complete_and_locked(self):
         with tempfile.TemporaryDirectory() as tmp:
             templates = []
