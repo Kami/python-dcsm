@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import os
-import shutil
+import re
 import tempfile
 from typing import Dict, Iterable, Optional, Sequence, Tuple, Union
 
@@ -86,10 +86,10 @@ class DummySecretsDict:
 def _render_one(
     template_path: str,
     destination_path: str,
-    ensure_permissions: str,
+    ensure_permissions: int,
     secrets_dict: object,
 ) -> str:
-    if template_path == destination_path:
+    if os.path.realpath(template_path) == os.path.realpath(destination_path):
         raise ValueError("Template and destination paths cannot be the same")
     lock = FileLock(get_template_file_lock_path(destination_path), timeout=10)
     with lock:
@@ -100,14 +100,16 @@ def _render_one(
 
         fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(destination_path)))
         try:
-            os.fchmod(fd, int(ensure_permissions, 8))
+            os.fchmod(fd, ensure_permissions)
             with os.fdopen(fd, "wb") as fp:
                 fp.write(rendered_template.encode("utf-8"))
-            shutil.move(tmp_path, destination_path)
+            # The temporary file is in the destination directory, so replace
+            # stays on one filesystem and is atomic on supported platforms.
+            os.replace(tmp_path, destination_path)
         finally:
             if os.path.isfile(tmp_path):
                 os.unlink(tmp_path)
-        os.chmod(destination_path, int(ensure_permissions, 8))
+        os.chmod(destination_path, ensure_permissions)
     print("Rendered template saved to %s" % (destination_path))
     return destination_path
 
@@ -125,19 +127,38 @@ def render_template_files(
     An optional third tuple item overrides ``ensure_permissions`` for that
     destination, allowing a batch to preserve mixed output modes.
     """
+    prepared = []
+    for item in templates:
+        if len(item) not in (2, 3):
+            raise ValueError("Each batch template must contain two or three fields")
+        template_path, destination_path = item[:2]
+        permission_text = item[2] if len(item) == 3 else ensure_permissions
+        permission_mode = _parse_permission_mode(permission_text)
+        prepared.append((template_path, destination_path, permission_mode))
+
     secrets_dict = DummySecretsDict("dummy") if dummy else RenderSecrets(
         key_path=key_path, secrets_path=secrets_path, key_password=key_password
     )
     results = []
-    for item in templates:
-        template_path, destination_path = item[:2]
-        permissions = item[2] if len(item) == 3 else ensure_permissions
+    for template_path, destination_path, permission_mode in prepared:
         results.append(
             _render_one(
-                template_path, destination_path, permissions, secrets_dict
+                template_path, destination_path, permission_mode, secrets_dict
             )
         )
     return results
+
+
+def _parse_permission_mode(mode: str) -> int:
+    """Parse a safe permission mode without special or group/world write bits."""
+    if not isinstance(mode, str) or not re.fullmatch(r"[0-7]{3,4}", mode):
+        raise ValueError("File permissions must be a three- or four-digit octal mode")
+    parsed = int(mode, 8)
+    if parsed & 0o7000:
+        raise ValueError("Setuid, setgid, and sticky permission bits are not allowed")
+    if parsed & 0o022:
+        raise ValueError("Group- or world-writable output permissions are not allowed")
+    return parsed
 
 
 def render_template_file(

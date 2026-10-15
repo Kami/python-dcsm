@@ -153,6 +153,11 @@ class FileRenderTestCase(unittest.TestCase):
             self.assertEqual(oct(os.stat(output).st_mode)[-3:], "640")
             with self.assertRaisesRegex(ValueError, "cannot be the same"):
                 render_template_files("", "", [(template, template)], dummy=True)
+            relative_template = os.path.relpath(template)
+            with self.assertRaisesRegex(ValueError, "cannot be the same"):
+                render_template_files(
+                    "", "", [(relative_template, os.path.abspath(template))], dummy=True
+                )
 
     def test_batch_allows_per_destination_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -169,6 +174,27 @@ class FileRenderTestCase(unittest.TestCase):
             )
             self.assertEqual(oct(os.stat(output_default).st_mode)[-3:], "600")
             self.assertEqual(oct(os.stat(output_private_exec).st_mode)[-3:], "700")
+
+    def test_batch_rejects_unsafe_permissions_before_writing_any_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            template = os.path.join(tmp, "template.j2")
+            output_valid = os.path.join(tmp, "valid")
+            output_unsafe = os.path.join(tmp, "unsafe")
+            with open(template, "w") as fp:
+                fp.write("ok")
+            with self.assertRaisesRegex(ValueError, "writable"):
+                render_template_files(
+                    "",
+                    "",
+                    [(template, output_valid), (template, output_unsafe, "666")],
+                    dummy=True,
+                )
+            self.assertFalse(os.path.exists(output_valid))
+            self.assertFalse(os.path.exists(output_unsafe))
+            with self.assertRaisesRegex(ValueError, "Setuid"):
+                render_template_files(
+                    "", "", [(template, output_unsafe, "4700")], dummy=True
+                )
 
     def test_concurrent_writes_to_same_destination_are_complete_and_locked(self):
         with tempfile.TemporaryDirectory() as tmp:
