@@ -47,6 +47,11 @@ def decrypt_secret(key_path: str, secret: str, password: Optional[str] = None) -
     )
     private_key = cast(RSAPrivateKey, private_key)
 
+    return decrypt_secret_with_key(private_key=private_key, secret=secret)
+
+
+def decrypt_secret_with_key(private_key: RSAPrivateKey, secret: str) -> str:
+    """Decrypt one ciphertext using an already-loaded private key."""
     b64decoded = base64.b64decode(secret)
 
     plaintext = private_key.decrypt(
